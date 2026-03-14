@@ -4,6 +4,7 @@ import View from 'ol/View';
 import TileLayer from 'ol/layer/Tile';
 import OSM from 'ol/source/OSM';
 import { fromLonLat } from 'ol/proj';
+import { Zoom, Attribution, defaults as defaultControls } from 'ol/control';
 import { Layer, MapConfig } from '@models/layer.model';
 
 @Injectable({
@@ -32,7 +33,19 @@ export class MapService {
       view: new View({
         center: fromLonLat(finalConfig.center),
         zoom: finalConfig.zoom
-      })
+      }),
+      controls: defaultControls({
+        zoom: false,
+        attribution: false,
+        rotate: false
+      }).extend([
+        new Zoom({
+          target: 'zoom-target'
+        }),
+        new Attribution({
+          target: 'attribution-target'
+        })
+      ])
     });
 
     return this.map;
