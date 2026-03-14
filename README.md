@@ -16,47 +16,40 @@ Because this project is functionally similar to internal applications I've built
 ## Project Structure
 
 ```
-gis-client/
-├── client/                          # Angular 20+ Frontend
-│   ├── src/
-│   │   ├── app/
-│   │   │   ├── core/
-│   │   │   │   └── services/
-│   │   │   │       └── map.service.ts          # OpenLayers map management
-│   │   │   ├── features/
-│   │   │   │   └── map/
-│   │   │   │       ├── map-viewer/             # Main map component
-│   │   │   │       │   ├── map-viewer.component.ts
-│   │   │   │       │   ├── map-viewer.component.html
-│   │   │   │       │   └── map-viewer.component.scss
-│   │   │   │       └── layer-panel/            # Layer management panel
-│   │   │   │           ├── layer-panel.component.ts
-│   │   │   │           ├── layer-panel.component.html
-│   │   │   │           └── layer-panel.component.scss
-│   │   │   ├── models/
-│   │   │   │   └── layer.model.ts              # TypeScript interfaces
-│   │   │   ├── app.component.ts
-│   │   │   ├── app.component.html
-│   │   │   ├── app.component.scss
-│   │   │   ├── app.config.ts                   # Application configuration
-│   │   │   └── app.routes.ts                   # Route definitions
-│   │   ├── environments/
-│   │   │   ├── environment.ts                  # Development config
-│   │   │   └── environment.prod.ts             # Production config
-│   │   ├── index.html
-│   │   ├── main.ts                             # Application entry point
-│   │   └── styles.scss                         # Global styles
-│   ├── public/
-│   │   └── favicon.ico
-│   ├── angular.json                            # Angular CLI configuration
-│   ├── package.json
-│   ├── tsconfig.json                           # TypeScript configuration
-│   ├── tsconfig.app.json
-│   ├── tsconfig.spec.json
-│   ├── .gitignore
-│   └── README.md
+gis-client/                              # Monorepo Root
+├── src/                                 # Angular 20+ Frontend
+│   ├── app/
+│   │   ├── core/
+│   │   │   └── services/
+│   │   │       └── map.service.ts          # OpenLayers map management
+│   │   ├── features/
+│   │   │   └── map/
+│   │   │       ├── map-viewer/             # Main map component
+│   │   │       │   ├── map-viewer.component.ts
+│   │   │       │   ├── map-viewer.component.html
+│   │   │       │   └── map-viewer.component.scss
+│   │   │       └── layer-panel/            # Layer management panel
+│   │   │           ├── layer-panel.component.ts
+│   │   │           ├── layer-panel.component.html
+│   │   │           └── layer-panel.component.scss
+│   │   ├── models/
+│   │   │   └── layer.model.ts              # TypeScript interfaces
+│   │   ├── app.component.ts
+│   │   ├── app.component.html
+│   │   ├── app.component.scss
+│   │   ├── app.config.ts                   # Application configuration
+│   │   └── app.routes.ts                   # Route definitions
+│   ├── environments/
+│   │   ├── environment.ts                  # Development config
+│   │   └── environment.prod.ts             # Production config
+│   ├── index.html
+│   ├── main.ts                             # Application entry point
+│   └── styles.scss                         # Global styles
 │
-├── server/                          # Node.js/Express Backend
+├── public/                                # Angular static assets
+│   └── favicon.ico
+│
+├── server/                                # Node.js/Express Backend
 │   ├── src/
 │   │   ├── controllers/
 │   │   │   └── layerController.ts              # Layer route handlers
@@ -71,14 +64,19 @@ gis-client/
 │   │   │   ├── errorHandler.ts                 # Error handling
 │   │   │   └── notFoundHandler.ts              # 404 handler
 │   │   └── server.ts                           # Express app entry point
-│   ├── package.json
 │   ├── tsconfig.json
-│   ├── .env.example                            # Environment template
-│   ├── .gitignore
-│   └── README.md
+│   └── .env.example                            # Environment template
 │
-├── .gitignore                                  # Root gitignore
-└── README.md                                   # This file
+├── package.json                           # Root package.json (merged dependencies)
+├── angular.json                           # Angular CLI configuration
+├── tsconfig.json                          # TypeScript configuration
+├── tsconfig.app.json
+├── tsconfig.spec.json
+├── Dockerfile                             # Railway deployment
+├── railway.toml                           # Railway configuration
+├── .env.example                           # Environment template
+├── .gitignore
+└── README.md                              # This file
 ```
 
 
