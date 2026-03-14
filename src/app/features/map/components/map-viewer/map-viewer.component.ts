@@ -1,11 +1,10 @@
 import { Component, OnInit, OnDestroy, ElementRef, ViewChild, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MapService } from '@core/services/map.service';
-import { LayerPanelComponent } from '../layer-panel/layer-panel.component';
 
 @Component({
   selector: 'app-map-viewer',
-  imports: [CommonModule, LayerPanelComponent],
+  imports: [CommonModule],
   templateUrl: './map-viewer.component.html',
   styleUrl: './map-viewer.component.scss'
 })

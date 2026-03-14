@@ -1,0 +1,34 @@
+.map-feature-container {
+  display: flex;
+  height: 90vh;
+  margin-top: 10vh;
+  position: relative;
+
+  .map-viewer-section {
+    flex: 1;
+    position: relative;
+  }
+
+  .layer-panel-section {
+    width: 300px;
+    background: #fff;
+    box-shadow: -2px 0 8px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    overflow-y: auto;
+  }
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+
+    .layer-panel-section {
+      width: 100%;
+      height: 200px;
+      order: 2;
+    }
+
+    .map-viewer-section {
+      order: 1;
+      height: calc(90vh - 200px);
+    }
+  }
+}
