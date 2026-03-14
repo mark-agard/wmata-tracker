@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "gis-client": {
+    "dc-openlayers-gis": {
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
@@ -17,7 +17,7 @@
         "build": {
           "builder": "@angular-devkit/build-angular:application",
           "options": {
-            "outputPath": "dist/gis-client",
+            "outputPath": "dist/browser",
             "index": "src/index.html",
             "browser": "src/main.ts",
             "polyfills": [
@@ -64,10 +64,10 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "gis-client:build:production"
+              "buildTarget": "dc-openlayers-gis:build:production"
             },
             "development": {
-              "buildTarget": "gis-client:build:development"
+              "buildTarget": "dc-openlayers-gis:build:development"
             }
           },
           "defaultConfiguration": "development"

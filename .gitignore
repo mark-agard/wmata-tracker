@@ -1,10 +1,14 @@
 # Dependencies
 node_modules/
+client/node_modules/
+server/node_modules/
 
 # Build outputs
 dist/
 build/
 out/
+out-tsc/
+server/dist/
 
 # Environment files
 .env
@@ -34,3 +38,7 @@ coverage/
 # Misc
 .angular/
 .cache/
+
+# Lock files (keep package-lock.json in root only)
+client/package-lock.json
+server/package-lock.json
