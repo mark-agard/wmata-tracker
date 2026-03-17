@@ -1,17 +1,11 @@
 # WMATA Train Tracker
 
-A web application for displaying real-time WMATA train positions on an interactive map.
+A web application for displaying real-time WMATA vehicle positions on an interactive map.
 
 - Angular 20+ used for the frontend
 - Node.js/Express used for the backend
 - OpenLayers used for map rendering and manipulation
 - PostGIS used for spatial data storage and retrieval
-
-This functions as a personal exploration of OpenLayers, since my tech stack for professional use relies on Mapbox GL JS. Additionally, I'd like to take some time to make better use of Angular features.
-
-As far as backend functionality, this project provides an opportunity to refine my API design and SQL query optimization skills. In particular, I'd like to optimize the MVT tile generation and make effective use of caching to improve performance. Eventually, I would like to make use of WMATA's API to provide real-time transit data too.
-
-Because this project is functionally similar to internal applications I've built in my current position, this serves as a portfolio piece I can share publicly. It also lets me play around with design/technical decisions that appeal to me personally, but aren't compatible with stakeholder requirements my internal products must satisfy.
 
 ## Project Structure
 
