@@ -8,6 +8,7 @@ import OSM from 'ol/source/OSM';
 import XYZ from 'ol/source/XYZ';
 import { fromLonLat } from 'ol/proj';
 import { Zoom, Attribution, defaults as defaultControls } from 'ol/control';
+import Overlay from 'ol/Overlay';
 import Feature from 'ol/Feature';
 import Point from 'ol/geom/Point';
 import { Style, Icon, Circle, Fill, Stroke, Text } from 'ol/style';
@@ -21,6 +22,8 @@ export class MapService {
   private trainLayer: VectorLayer<VectorSource> | null = null;
   private trainSource: VectorSource | null = null;
   private trains = signal<TrainPosition[]>([]);
+  private popupOverlay: Overlay | null = null;
+  private popupElement: HTMLElement | null = null;
 
   initializeMap(target: string, config?: MapConfig): Map {
     const defaultConfig: MapConfig = {
@@ -84,6 +87,96 @@ export class MapService {
       ])
     });
 
+    // Create popup element
+    this.popupElement = document.createElement('div');
+    this.popupElement.className = 'train-popup';
+    this.popupElement.style.cssText = `
+      background: white;
+      border-radius: 6px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      min-width: 180px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      overflow: hidden;
+      display: none;
+    `;
+
+    // Create popup overlay
+    this.popupOverlay = new Overlay({
+      element: this.popupElement,
+      positioning: 'bottom-center',
+      offset: [0, -10]
+    });
+    this.map.addOverlay(this.popupOverlay);
+
+    // Add hover detection for train features
+    this.map.on('pointermove', (event) => {
+      if (!this.map || !this.trainLayer) return;
+
+      const pixel = this.map.getEventPixel(event.originalEvent);
+      const feature = this.map.forEachFeatureAtPixel(pixel, (feature) => {
+        return feature;
+      }, {
+        layerFilter: (layer) => layer === this.trainLayer
+      });
+
+      if (feature && this.popupElement && this.popupOverlay) {
+        const train = feature.get('train') as TrainPosition;
+        const line = feature.get('line') as string;
+        const coordinates = (feature.getGeometry() as Point).getCoordinates();
+
+        this.popupElement.innerHTML = `
+          <div style="background: ${this.getLineColor(line)}; color: white; padding: 8px 12px; font-weight: 600; font-size: 13px;">
+            ${line} Line
+          </div>
+          <div style="padding: 10px 12px; font-size: 12px; color: #444; line-height: 1.6;">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+              <span style="color: #666;">Train ID</span>
+              <span style="font-weight: 500;">${train.id}</span>
+            </div>
+            ${train.heading !== undefined ? `
+              <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                <span style="color: #666;">Heading</span>
+                <span>${train.heading}°</span>
+              </div>` : ''}
+            ${train.speed !== undefined ? `
+              <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                <span style="color: #666;">Speed</span>
+                <span>${train.speed} m/s</span>
+              </div>` : ''}
+            ${train.currentStatus ? `
+              <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                <span style="color: #666;">Status</span>
+                <span>${train.currentStatus}</span>
+              </div>` : ''}
+            ${train.stopId ? `
+              <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                <span style="color: #666;">Stop</span>
+                <span>${train.stopId}</span>
+              </div>` : ''}
+            ${train.congestionLevel ? `
+              <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                <span style="color: #666;">Congestion</span>
+                <span>${train.congestionLevel}</span>
+              </div>` : ''}
+            ${train.occupancyPercentage !== undefined ? `
+              <div style="display: flex; justify-content: space-between;">
+                <span style="color: #666;">Occupancy</span>
+                <span>${train.occupancyPercentage}%</span>
+              </div>` : ''}
+            ${train.occupancyStatus && train.occupancyPercentage === undefined ? `
+              <div style="display: flex; justify-content: space-between;">
+                <span style="color: #666;">Occupancy</span>
+                <span>${train.occupancyStatus}</span>
+              </div>` : ''}
+          </div>
+        `;
+        this.popupElement.style.display = 'block';
+        this.popupOverlay.setPosition(coordinates);
+      } else if (this.popupElement) {
+        this.popupElement.style.display = 'none';
+      }
+    });
+
     return this.map;
   }
 
@@ -136,6 +229,12 @@ export class MapService {
   }
 
   destroy(): void {
+    if (this.popupElement && this.popupElement.parentNode) {
+      this.popupElement.parentNode.removeChild(this.popupElement);
+    }
+    this.popupElement = null;
+    this.popupOverlay = null;
+    
     if (this.map) {
       this.map.setTarget(undefined);
       this.map = null;

@@ -53,14 +53,19 @@ class TrainService {
           const trip = vehicle.trip;
           const vehicleDesc = vehicle.vehicle;
           
-          const train = {
+          const train: TrainPosition = {
             id: vehicleDesc?.id || vehicleDesc?.label || 'unknown',
             line: this.extractLineFromRoute(trip?.routeId || ''),
             latitude: position.latitude || 0,
             longitude: position.longitude || 0,
             heading: position.bearing,
             timestamp: new Date().toISOString(),
-            debugRouteId: trip?.routeId // Temporary debug field
+            speed: position.speed,
+            currentStatus: vehicle.currentStatus?.toString(),
+            stopId: vehicle.stopId,
+            congestionLevel: vehicle.congestionLevel?.toString(),
+            occupancyStatus: vehicle.occupancyStatus?.toString(),
+            occupancyPercentage: vehicle.occupancyPercentage
           };
           console.log('Processed train:', train);
           return train;

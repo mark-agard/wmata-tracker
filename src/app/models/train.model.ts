@@ -5,6 +5,12 @@ export interface TrainPosition {
   longitude: number;
   heading?: number;
   timestamp: string;
+  speed?: number;
+  currentStatus?: string;
+  stopId?: string;
+  congestionLevel?: string;
+  occupancyStatus?: string;
+  occupancyPercentage?: number;
 }
 
 export interface MapConfig {
