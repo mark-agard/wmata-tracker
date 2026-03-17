@@ -1,6 +1,6 @@
-# DC OpenLayers GIS Application
+# WMATA Train Tracker
 
-A web application for viewing and manipulating spatial data focused on datasets local to the DMV.
+A web application for displaying real-time WMATA train positions on an interactive map.
 
 - Angular 20+ used for the frontend
 - Node.js/Express used for the backend
@@ -25,7 +25,7 @@ gis-client/                              # Monorepo Root
 │   │   │   │   ├── header.html
 │   │   │   │   └── header.scss
 │   │   │   └── services/
-│   │   │       └── map.service.ts          # OpenLayers map management
+│   │   │       └── map.service.ts          # OpenLayers map 
 │   │   ├── features/
 │   │   │   └── map/                         # Map feature module
 │   │   │       ├── map.component.ts         # Main map feature container
@@ -33,16 +33,12 @@ gis-client/                              # Monorepo Root
 │   │   │       ├── map.component.scss
 │   │   │       ├── map.module.ts            # Map feature module
 │   │   │       └── components/
-│   │   │           ├── map-viewer/          # Map display component
-│   │   │           │   ├── map-viewer.component.ts
-│   │   │           │   ├── map-viewer.component.html
-│   │   │           │   └── map-viewer.component.scss
-│   │   │           └── layer-panel/         # Layer management panel
-│   │   │               ├── layer-panel.component.ts
-│   │   │               ├── layer-panel.component.html
-│   │   │               └── layer-panel.component.scss
+│   │   │           └── map-viewer/          # Map display component
+│   │   │               ├── map-viewer.component.ts
+│   │   │               ├── map-viewer.component.html
+│   │   │               └── map-viewer.component.scss
 │   │   ├── models/
-│   │   │   └── layer.model.ts              # TypeScript interfaces
+│   │   │   └── train.model.ts              # TypeScript interfaces for train data
 │   │   ├── app.component.ts
 │   │   ├── app.component.html
 │   │   ├── app.component.scss
@@ -61,14 +57,13 @@ gis-client/                              # Monorepo Root
 ├── server/                                # Node.js/Express Backend
 │   ├── src/
 │   │   ├── controllers/
-│   │   │   └── layerController.ts              # Layer route handlers
+│   │   │   └── trainController.ts              # Train API route handlers
 │   │   ├── services/
-│   │   │   └── layerService.ts                 # Layer business logic
+│   │   │   └── trainService.ts                 # WMATA API integration
 │   │   ├── models/
-│   │   │   └── layer.model.ts                  # Data models & DTOs
+│   │   │   └── train.model.ts                  # Train data models
 │   │   ├── routes/
-│   │   │   ├── layerRoutes.ts                  # Layer API routes
-│   │   │   └── mapRoutes.ts                    # Map API routes
+│   │   │   └── trainRoutes.ts                  # Train API routes
 │   │   ├── middleware/
 │   │   │   ├── errorHandler.ts                 # Error handling
 │   │   │   └── notFoundHandler.ts              # 404 handler

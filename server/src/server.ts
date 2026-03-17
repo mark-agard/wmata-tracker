@@ -1,17 +1,36 @@
-import express, { Application } from 'express';
+import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import dotenv from 'dotenv';
 import path from 'path';
-import { errorHandler } from './middleware/errorHandler';
-import { notFoundHandler } from './middleware/notFoundHandler';
-import layerRoutes from './routes/layerRoutes';
-import mapRoutes from './routes/mapRoutes';
+import trainRoutes from './routes/trainRoutes';
 
 dotenv.config();
 
-const app: Application = express();
+// Inline error handler
+const errorHandler = (err: any, req: any, res: any, next: any) => {
+  const statusCode = err.statusCode || 500;
+  const status = err.status || 'error';
+
+  console.error('Error:', err);
+
+  res.status(statusCode).json({
+    status,
+    message: err.message || 'Internal Server Error',
+    ...(process.env.NODE_ENV === 'development' && { stack: err.stack })
+  });
+};
+
+// Inline 404 handler
+const notFoundHandler = (req: any, res: any, next: any) => {
+  res.status(404).json({
+    status: 'error',
+    message: 'Route not found'
+  });
+};
+
+const app = express();
 const PORT = process.env.PORT || 3000;
 const isProduction = process.env.NODE_ENV === 'production';
 
@@ -30,8 +49,8 @@ app.get('/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
-app.use('/api/layers', layerRoutes);
-app.use('/api/maps', mapRoutes);
+app.use('/api/trains', trainRoutes);
+
 
 if (isProduction) {
   const distPath = path.join(__dirname, '../../dist/browser');

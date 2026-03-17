@@ -9,35 +9,4 @@
     height: 100%;
     position: relative;
   }
-
-  .layer-panel-section {
-    position: absolute;
-    left: 1vw;
-    top: 2vh;
-    width: 300px;
-    height: calc(100% - 4vh);
-    background: #fff;
-    box-shadow: 2px 0 8px rgba(0, 0, 0, 0.15);
-    z-index: 1000;
-    overflow-y: auto;
-    border-radius: 8px;
-  }
-
-  @media (max-width: 768px) {
-    .layer-panel-section {
-      width: 280px;
-      left: 1vw;
-      height: calc(100% - 4vh);
-      top: 4vh;
-    }
-  }
-
-  @media (max-width: 480px) {
-    .layer-panel-section {
-      width: 90%;
-      left: 5%;
-      height: 50%;
-      top: 25vh;
-    }
-  }
 }

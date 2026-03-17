@@ -1,6 +1,9 @@
 import { Component, OnInit, OnDestroy, ElementRef, ViewChild, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MapService } from '@core/services/map.service';
+import { HttpClient } from '@angular/common/http';
+import { interval, takeUntil } from 'rxjs';
+import { Subject } from 'rxjs';
 
 @Component({
   selector: 'app-map-viewer',
@@ -10,20 +13,49 @@ import { MapService } from '@core/services/map.service';
 })
 export class MapViewerComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('mapContainer', { static: true }) mapContainer!: ElementRef;
+  private destroy$ = new Subject<void>();
 
-  constructor(private mapService: MapService) {}
+  constructor(
+    private mapService: MapService,
+    private http: HttpClient
+  ) {}
 
   ngOnInit(): void {
+    // Fetch train data every 1 second for near real-time updates
+    interval(1000)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        this.fetchTrainPositions();
+      });
+
+    // Initial fetch
+    this.fetchTrainPositions();
   }
 
   ngAfterViewInit(): void {
     this.mapService.initializeMap('map', {
-      center: [-98.5795, 39.8283],
-      zoom: 4
+      center: [-77.0365, 38.9072], // DC coordinates
+      zoom: 12
     });
   }
 
   ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
     this.mapService.destroy();
+  }
+
+  private fetchTrainPositions(): void {
+    this.http.get<any>('/api/trains')
+      .subscribe({
+        next: (response) => {
+          if (response.status === 'success' && response.data) {
+            this.mapService.updateTrainPositions(response.data);
+          }
+        },
+        error: (error) => {
+          console.error('Error fetching train positions:', error);
+        }
+      });
   }
 }
