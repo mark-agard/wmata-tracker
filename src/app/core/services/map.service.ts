@@ -129,6 +129,12 @@ export class MapService {
     return colors[line] || '#666666';
   }
 
+  setLayerVisibility(layerId: string, visible: boolean): void {
+    if (layerId === 'trains' && this.trainLayer) {
+      this.trainLayer.setVisible(visible);
+    }
+  }
+
   destroy(): void {
     if (this.map) {
       this.map.setTarget(undefined);

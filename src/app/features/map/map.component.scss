@@ -3,6 +3,14 @@
   margin-top: 10vh;
   position: relative;
   overflow: hidden;
+  display: flex;
+
+  .layer-toggle-section {
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    z-index: 100;
+  }
 
   .map-viewer-section {
     width: 100%;

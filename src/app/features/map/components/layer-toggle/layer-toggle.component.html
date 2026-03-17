@@ -1,0 +1,15 @@
+<div class="layer-toggle-panel">
+  <h3>Toggle by Vehicle Type</h3>
+  <div class="layer-list">
+    <div *ngFor="let layer of layers" class="layer-item">
+      <label class="layer-label">
+        <input 
+          type="checkbox" 
+          [checked]="layer.visible"
+          (change)="toggleLayer(layer.id)"
+        />
+        <span class="layer-name">{{ layer.name }}</span>
+      </label>
+    </div>
+  </div>
+</div>
