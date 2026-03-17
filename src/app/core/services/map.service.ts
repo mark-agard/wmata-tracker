@@ -5,6 +5,7 @@ import TileLayer from 'ol/layer/Tile';
 import VectorLayer from 'ol/layer/Vector';
 import VectorSource from 'ol/source/Vector';
 import OSM from 'ol/source/OSM';
+import XYZ from 'ol/source/XYZ';
 import { fromLonLat } from 'ol/proj';
 import { Zoom, Attribution, defaults as defaultControls } from 'ol/control';
 import Feature from 'ol/Feature';
@@ -58,7 +59,10 @@ export class MapService {
       target: target,
       layers: [
         new TileLayer({
-          source: new OSM()
+          source: new XYZ({
+            url: 'https://{a-d}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',
+            attributions: '© <a href="https://www.openstreetmap.org/copyright">OSM</a> contributors © <a href="https://carto.com/attributions">CARTO</a>'
+          })
         }),
         this.trainLayer
       ],

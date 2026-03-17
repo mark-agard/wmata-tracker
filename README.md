@@ -5,7 +5,8 @@ A web application for displaying real-time WMATA vehicle positions on an interac
 - Angular 20+ used for the frontend
 - Node.js/Express used for the backend
 - OpenLayers used for map rendering and manipulation
-- PostGIS used for spatial data storage and retrieval
+
+While the application is still very much in progress, the desired functionality is to display real-time bus and rail vehicle positions on an interactive map, with layer visibility toggles by vehicle type. I'd also like to add a live feed of service alerts and disruptions.
 
 ## Project Structure
 
