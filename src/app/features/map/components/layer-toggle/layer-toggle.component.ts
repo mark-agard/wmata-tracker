@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MapService } from '../../../../core/services/map.service';
+import { MapService } from '@core/services/map.service';
 
 @Component({
   selector: 'app-layer-toggle',

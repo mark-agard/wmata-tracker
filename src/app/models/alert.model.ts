@@ -1,0 +1,40 @@
+export interface ServiceAlert {
+  id: string;
+  header: string;
+  description: string;
+  url?: string;
+  affectedLines: string[];
+  cause: string;
+  effect: string;
+  activePeriods: { start: string; end?: string }[];
+  timestamp: string;
+}
+
+export enum AlertCause {
+  UNKNOWN_CAUSE = 'UNKNOWN_CAUSE',
+  OTHER_CAUSE = 'OTHER_CAUSE',
+  TECHNICAL_PROBLEM = 'TECHNICAL_PROBLEM',
+  STRIKE = 'STRIKE',
+  DEMONSTRATION = 'DEMONSTRATION',
+  ACCIDENT = 'ACCIDENT',
+  HOLIDAY = 'HOLIDAY',
+  WEATHER = 'WEATHER',
+  MAINTENANCE = 'MAINTENANCE',
+  CONSTRUCTION = 'CONSTRUCTION',
+  POLICE_ACTIVITY = 'POLICE_ACTIVITY',
+  MEDICAL_EMERGENCY = 'MEDICAL_EMERGENCY'
+}
+
+export enum AlertEffect {
+  NO_SERVICE = 'NO_SERVICE',
+  REDUCED_SERVICE = 'REDUCED_SERVICE',
+  SIGNIFICANT_DELAYS = 'SIGNIFICANT_DELAYS',
+  DETOUR = 'DETOUR',
+  ADDITIONAL_SERVICE = 'ADDITIONAL_SERVICE',
+  MODIFIED_SERVICE = 'MODIFIED_SERVICE',
+  STOP_MOVED = 'STOP_MOVED',
+  OTHER_EFFECT = 'OTHER_EFFECT',
+  UNKNOWN_EFFECT = 'UNKNOWN_EFFECT',
+  NO_EFFECT = 'NO_EFFECT',
+  ACCESSIBILITY_ISSUE = 'ACCESSIBILITY_ISSUE'
+}

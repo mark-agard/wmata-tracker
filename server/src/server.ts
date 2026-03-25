@@ -5,30 +5,11 @@ import morgan from 'morgan';
 import dotenv from 'dotenv';
 import path from 'path';
 import trainRoutes from './routes/trainRoutes';
+import alertRoutes from './routes/alertRoutes';
+import { errorHandler } from './middleware/errorHandler';
+import { notFoundHandler } from './middleware/notFoundHandler';
 
 dotenv.config();
-
-// Inline error handler
-const errorHandler = (err: any, req: any, res: any, next: any) => {
-  const statusCode = err.statusCode || 500;
-  const status = err.status || 'error';
-
-  console.error('Error:', err);
-
-  res.status(statusCode).json({
-    status,
-    message: err.message || 'Internal Server Error',
-    ...(process.env.NODE_ENV === 'development' && { stack: err.stack })
-  });
-};
-
-// Inline 404 handler
-const notFoundHandler = (req: any, res: any, next: any) => {
-  res.status(404).json({
-    status: 'error',
-    message: 'Route not found'
-  });
-};
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -50,6 +31,7 @@ app.get('/health', (req, res) => {
 });
 
 app.use('/api/trains', trainRoutes);
+app.use('/api/alerts', alertRoutes);
 
 
 if (isProduction) {

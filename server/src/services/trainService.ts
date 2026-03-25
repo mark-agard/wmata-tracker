@@ -1,5 +1,5 @@
-import { TrainPosition } from '../models/train.model.js';
-import { FeedMessage } from '../generated/gtfs-realtime.js';
+import { TrainPosition } from '../models/train.model';
+import { FeedMessage } from '../generated/gtfs-realtime';
 
 class TrainService {
   private trainPositions: TrainPosition[] = [];

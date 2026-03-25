@@ -1,0 +1,68 @@
+<div class="alert-feed-panel" [class.collapsed]="isCollapsed()">
+  <div class="panel-header" (click)="toggleCollapse()">
+    <h3>
+      Service Alerts
+      <span class="alert-count" *ngIf="alerts().length > 0">{{ alerts().length }}</span>
+    </h3>
+    <div class="header-actions">
+      <button class="refresh-btn" (click)="refresh(); $event.stopPropagation()" title="Refresh alerts">
+        ↻
+      </button>
+      <span class="collapse-icon">{{ isCollapsed() ? '▲' : '▼' }}</span>
+    </div>
+  </div>
+
+  <div class="panel-content" *ngIf="!isCollapsed()">
+    <div class="last-update" *ngIf="lastUpdate()">
+      Updated: {{ lastUpdate() | date:'shortTime' }}
+      <span class="fresh-indicator" [class.stale]="!isFresh()">●</span>
+    </div>
+
+    <div class="alert-list" *ngIf="alerts().length > 0; else noAlerts">
+      <div
+        *ngFor="let alert of alerts()"
+        class="alert-card"
+        [class.expanded]="expandedAlertId() === alert.id"
+        [attr.data-effect]="alert.effect"
+        (click)="toggleAlert(alert.id)"
+      >
+        <div class="alert-header">
+          <div class="alert-title">{{ alert.header }}</div>
+          <div class="alert-badges">
+            <span class="effect-badge" [class]="getEffectClass(alert.effect)">
+              {{ formatEffect(alert.effect) }}
+            </span>
+          </div>
+        </div>
+
+        <div class="alert-lines" *ngIf="alert.affectedLines.length > 0">
+          <span
+            *ngFor="let line of alert.affectedLines"
+            class="line-badge"
+            [style.background-color]="getLineColor(line)"
+          >
+            {{ line }}
+          </span>
+        </div>
+
+        <div class="alert-description" *ngIf="expandedAlertId() === alert.id">
+          {{ alert.description }}
+          <a *ngIf="alert.url" [href]="alert.url" target="_blank" rel="noopener" class="alert-link" (click)="$event.stopPropagation()">
+            More info →
+          </a>
+        </div>
+
+        <div class="alert-cause" *ngIf="alert.cause && alert.cause !== 'UNKNOWN_CAUSE'">
+          Cause: {{ alert.cause.replace('_', ' ') | lowercase }}
+        </div>
+      </div>
+    </div>
+
+    <ng-template #noAlerts>
+      <div class="no-alerts">
+        <p>No active service alerts</p>
+        <p class="subtext">Metro service is running normally</p>
+      </div>
+    </ng-template>
+  </div>
+</div>
