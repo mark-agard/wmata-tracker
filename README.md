@@ -1,83 +1,30 @@
 # WMATA Train Tracker
+*Note: This project was created with AI assistance, though I'd never subject the reader to AI-generated documentation.*
 
-A web application for displaying real-time WMATA vehicle positions on an interactive map.
+This lightweight application displays real-time WMATA rail vehicle positions, station and line information, and service alerts. It serves as a simple alternative to the WMATA website. While not technically complex, it made for a fun first project using GTFS-RT and OpenLayers, since I had never worked with either before (I use Mapbox in my day job).
 
-- Angular 20+ used for the frontend
-- Node.js/Express used for the backend
-- OpenLayers used for map rendering and manipulation
+I need to remember to add this to railway so it's actually available to the public. 
 
-While the application is still very much in progress, the desired functionality is to display real-time bus and rail vehicle positions on an interactive map, with layer visibility toggles by vehicle type. I'd also like to add a live feed of service alerts and disruptions.
+## Features
+- Real-time WMATA rail vehicle positions
+- Station and line information, including live arrival/departure data
+- Service alerts and disruptions
 
-## Project Structure
+## Stack
+The application is built using Angular 20 for the frontend and Node.js/Express for the backend. Webmapping is powered by OpenLayers.
 
-```
-gis-client/                              # Monorepo Root
-├── src/                                 # Angular 20+ Frontend
-│   ├── app/
-│   │   ├── core/
-│   │   │   ├── header/                     # Application header component
-│   │   │   │   ├── header.ts
-│   │   │   │   ├── header.html
-│   │   │   │   └── header.scss
-│   │   │   └── services/
-│   │   │       └── map.service.ts          # OpenLayers map 
-│   │   ├── features/
-│   │   │   └── map/                         # Map feature module
-│   │   │       ├── map.component.ts         # Main map feature container
-│   │   │       ├── map.component.html
-│   │   │       ├── map.component.scss
-│   │   │       ├── map.module.ts            # Map feature module
-│   │   │       └── components/
-│   │   │           └── map-viewer/          # Map display component
-│   │   │               ├── map-viewer.component.ts
-│   │   │               ├── map-viewer.component.html
-│   │   │               └── map-viewer.component.scss
-│   │   ├── models/
-│   │   │   └── train.model.ts              # TypeScript interfaces for train data
-│   │   ├── app.component.ts
-│   │   ├── app.component.html
-│   │   ├── app.component.scss
-│   │   ├── app.config.ts                   # Application configuration
-│   │   └── app.routes.ts                   # Route definitions
-│   ├── environments/
-│   │   ├── environment.ts                  # Development config
-│   │   └── environment.prod.ts             # Production config
-│   ├── index.html
-│   ├── main.ts                             # Application entry point
-│   └── styles.scss                         # Global styles
-│
-├── public/                                # Angular static assets
-│   └── favicon.ico
-│
-├── server/                                # Node.js/Express Backend
-│   ├── src/
-│   │   ├── controllers/
-│   │   │   └── trainController.ts              # Train API route handlers
-│   │   ├── services/
-│   │   │   └── trainService.ts                 # WMATA API integration
-│   │   ├── models/
-│   │   │   └── train.model.ts                  # Train data models
-│   │   ├── routes/
-│   │   │   └── trainRoutes.ts                  # Train API routes
-│   │   ├── middleware/
-│   │   │   ├── errorHandler.ts                 # Error handling
-│   │   │   └── notFoundHandler.ts              # 404 handler
-│   │   └── server.ts                           # Express app entry point
-│   ├── tsconfig.json
-│   └── .env.example                            # Environment template
-│
-├── package.json                           # Root package.json (merged dependencies)
-├── angular.json                           # Angular CLI configuration
-├── tsconfig.json                          # TypeScript configuration
-├── tsconfig.app.json
-├── tsconfig.spec.json
-├── Dockerfile                             # Railway deployment
-├── railway.toml                           # Railway configuration
-├── .env.example                           # Environment template
-├── .gitignore
-└── README.md                              # This file
-```
+## Data Sources
+- The features for stations and lines were retrieved as geojson from opendata.dc.gov.
+- Real-time vehicle position and trip information are retrieved from the WMATA GTFS-RT API.
 
-## Architectural Choices
+## Lessons Learned
+- Ascertaining correct column information to make use of the Rail RT Trip Updates endpoint took longer than it should've. I assumed that the GIS_ID field of the stations geojson would match the ID field of the trip updates, but it didn't. Spent a while assuming my backend logic was broken before realizing by chance that deriving stop required using the TRAININFO_URL field from the geojson. A value like "https://.../nexttrain.html#E03|Georgia Ave-Petworth" contains the sring E03, which matches the "PF_B06_C" pattern present in the vehicle positions responses. That PF_B06_C value is what I needed to match against in the trip updates.
+- Enriching the station arrivals panel with direction also took a bit of extra legwork. The trip updates don't include a direction field, so I had to derive it from the route and stop information. This involved extracting all stops from a trip, then determing the position of the train relative to the midpoint of the trip to determine which direction it was heading.
 
-One of the first meaningful architectural choices I've made is to organize the project as a monorepo where the frontend and backend are in the same repository. In a production environment, it might be better to split them up into separate repositories for better isolation and deployment flexibility. For my purposes, however, it's nice to deploy this as one repo to Railway. 
+All in all, I should have probably spent more time thinking through the logic and checking assumptions (like the GIS_ID) before diving in. It was pretty fun to identify the GIS_ID issue though, since neither Kimi K2.5 nor Claude 4.5 Sonnet could figure it out on their own. Perhaps our jobs are safe so long as AI doesn't think to actually read the data before I do.
+
+## Planned Features
+
+- Implement app routing to allow for, at a minimum, an about page that provides information about the application and usage. I may also add a data page explaining the GTFS-RT structure. Eventually, the app router could be used to meaningfully enrich the application with pages for trip details, timetable information, etc.
+- It might be fun to implement some routing functionality to allow users to plan trips between stations. I am not sure if this is possible with the minimalist backend I built, but it would be a nice addition. 
+- Extending the application to support bus information would be a nice feature. I wonder if I could re-use the rail logic for that, or if I'd need to build a separate backend service for bus data. My hope is that the GTFS-RT API for buses is similar enough to the rail API that I could abstract the existing code into generalized methods.
