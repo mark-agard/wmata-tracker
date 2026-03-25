@@ -11,7 +11,8 @@ import { Zoom, Attribution, defaults as defaultControls } from 'ol/control';
 import Overlay from 'ol/Overlay';
 import Feature from 'ol/Feature';
 import Point from 'ol/geom/Point';
-import { Style, Icon, Circle, Fill, Stroke, Text } from 'ol/style';
+import { Style, Icon, Circle, Fill, Stroke, Text, RegularShape } from 'ol/style';
+import GeoJSON from 'ol/format/GeoJSON';
 import { TrainPosition, MapConfig } from '@models/train.model';
 
 @Injectable({
@@ -21,7 +22,10 @@ export class MapService {
   private map: Map | null = null;
   private trainLayer: VectorLayer<VectorSource> | null = null;
   private trainSource: VectorSource | null = null;
+  private metroLinesLayer: VectorLayer<VectorSource> | null = null;
+  private metroStationsLayer: VectorLayer<VectorSource> | null = null;
   private trains = signal<TrainPosition[]>([]);
+  private enabledLines = signal<Set<string>>(new Set(['RL', 'OR', 'BL', 'SV', 'YL', 'GR']));
   private popupOverlay: Overlay | null = null;
   private popupElement: HTMLElement | null = null;
 
@@ -40,8 +44,12 @@ export class MapService {
     // Create vector layer for trains
     this.trainLayer = new VectorLayer({
       source: this.trainSource,
+      zIndex: 10,
       style: (feature) => {
-        const line = feature.get('line');
+        const line = feature.get('line') as string;
+        if (!this.isLineEnabled(line)) {
+          return undefined;
+        }
         const color = this.getLineColor(line);
         return new Style({
           image: new Circle({
@@ -222,9 +230,155 @@ export class MapService {
     return colors[line] || '#666666';
   }
 
+  private getLineColorFromName(name: string): string {
+    const colors: Record<string, string> = {
+      'red': '#BE133C',
+      'orange': '#F97A00',
+      'blue': '#0050A4',
+      'silver': '#A0A0A0',
+      'yellow': '#F8D400',
+      'green': '#00A85C'
+    };
+    return colors[name.toLowerCase()] || '#666666';
+  }
+
+  private getLineCodeFromName(name: string): string {
+    const codes: Record<string, string> = {
+      'red': 'RL',
+      'orange': 'OR',
+      'blue': 'BL',
+      'silver': 'SV',
+      'yellow': 'YL',
+      'green': 'GR'
+    };
+    return codes[name.toLowerCase()] || '';
+  }
+
+  getEnabledLines() {
+    return this.enabledLines.asReadonly();
+  }
+
+  setLineEnabled(line: string, enabled: boolean): void {
+    this.enabledLines.update(lines => {
+      const newLines = new Set(lines);
+      if (enabled) {
+        newLines.add(line);
+      } else {
+        newLines.delete(line);
+      }
+      return newLines;
+    });
+    
+    // Trigger layer refresh
+    this.refreshLayers();
+  }
+
+  private isLineEnabled(line: string): boolean {
+    return this.enabledLines().has(line);
+  }
+
+  private refreshLayers(): void {
+    if (this.trainLayer) {
+      this.trainLayer.changed();
+    }
+    if (this.metroLinesLayer) {
+      this.metroLinesLayer.changed();
+    }
+    if (this.metroStationsLayer) {
+      this.metroStationsLayer.changed();
+    }
+  }
+
+  async addMetroLinesLayer(): Promise<void> {
+    if (!this.map) return;
+
+    try {
+      const response = await fetch('/assets/Metro_Lines_Regional.geojson');
+      const geojson = await response.json();
+
+      const source = new VectorSource({
+        features: new GeoJSON().readFeatures(geojson, {
+          featureProjection: 'EPSG:3857'
+        })
+      });
+
+      this.metroLinesLayer = new VectorLayer({
+        source: source,
+        style: (feature) => {
+          const lineName = feature.get('NAME') as string;
+          const lineCode = this.getLineCodeFromName(lineName);
+          if (!this.isLineEnabled(lineCode)) {
+            return undefined;
+          }
+          const color = this.getLineColorFromName(lineName);
+          return new Style({
+            stroke: new Stroke({
+              color: color,
+              width: 4
+            })
+          });
+        }
+      });
+
+      this.map.addLayer(this.metroLinesLayer);
+    } catch (error) {
+      console.error('Error loading metro lines:', error);
+    }
+  }
+
+  async addMetroStationsLayer(): Promise<void> {
+    if (!this.map) return;
+
+    try {
+      const response = await fetch('/assets/Metro_Stations_Regional.geojson');
+      const geojson = await response.json();
+
+      const source = new VectorSource({
+        features: new GeoJSON().readFeatures(geojson, {
+          featureProjection: 'EPSG:3857'
+        })
+      });
+
+      this.metroStationsLayer = new VectorLayer({
+        source: source,
+        style: (feature) => {
+          const lines = feature.get('LINE') as string;
+          const firstLine = lines?.split(',')[0]?.trim() || '';
+          const lineCode = this.getLineCodeFromName(firstLine);
+          if (!this.isLineEnabled(lineCode)) {
+            return undefined;
+          }
+          const color = this.getLineColorFromName(firstLine);
+          return new Style({
+            image: new RegularShape({
+              fill: new Fill({
+                color: color
+              }),
+              stroke: new Stroke({
+                color: '#333',
+                width: 2
+              }),
+              points: 4,
+              radius: 7,
+              angle: Math.PI / 4
+            })
+          });
+        }
+      });
+
+      this.map.addLayer(this.metroStationsLayer);
+    } catch (error) {
+      console.error('Error loading metro stations:', error);
+    }
+  }
+
   setLayerVisibility(layerId: string, visible: boolean): void {
     if (layerId === 'trains' && this.trainLayer) {
       this.trainLayer.setVisible(visible);
+    } else if (layerId === 'metro-lines' && this.metroLinesLayer) {
+      this.metroLinesLayer.setVisible(visible);
+    } else if (layerId === 'metro-stations' && this.metroStationsLayer) {
+      this.metroStationsLayer.setVisible(visible);
     }
   }
 
@@ -234,8 +388,16 @@ export class MapService {
     }
     this.popupElement = null;
     this.popupOverlay = null;
-    
+
     if (this.map) {
+      if (this.metroLinesLayer) {
+        this.map.removeLayer(this.metroLinesLayer);
+        this.metroLinesLayer = null;
+      }
+      if (this.metroStationsLayer) {
+        this.map.removeLayer(this.metroStationsLayer);
+        this.metroStationsLayer = null;
+      }
       this.map.setTarget(undefined);
       this.map = null;
     }

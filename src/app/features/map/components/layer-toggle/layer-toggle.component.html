@@ -1,15 +1,52 @@
 <div class="layer-toggle-panel">
-  <h3>Toggle by Vehicle Type</h3>
-  <div class="layer-list">
-    <div *ngFor="let layer of layers" class="layer-item">
-      <label class="layer-label">
-        <input 
-          type="checkbox" 
-          [checked]="layer.visible"
-          (change)="toggleLayer(layer.id)"
-        />
-        <span class="layer-name">{{ layer.name }}</span>
-      </label>
+  <div class="panel-header">
+    <h3>Map Layers</h3>
+    <div class="view-toggle">
+      <button
+        class="toggle-btn"
+        [class.active]="viewMode() === 'layer'"
+        (click)="setViewMode('layer')"
+      >
+        By Layer
+      </button>
+      <button
+        class="toggle-btn"
+        [class.active]="viewMode() === 'line'"
+        (click)="setViewMode('line')"
+      >
+        By Line
+      </button>
+    </div>
+  </div>
+
+  <div class="panel-content">
+    <!-- Layer View -->
+    <div *ngIf="viewMode() === 'layer'" class="layer-list">
+      <div *ngFor="let layer of layers" class="layer-item">
+        <label class="layer-label">
+          <input
+            type="checkbox"
+            [checked]="layer.visible"
+            (change)="toggleLayer(layer.id)"
+          />
+          <span class="layer-name">{{ layer.name }}</span>
+        </label>
+      </div>
+    </div>
+
+    <!-- Line View -->
+    <div *ngIf="viewMode() === 'line'" class="line-list">
+      <div *ngFor="let line of lines" class="line-item">
+        <label class="line-label">
+          <input
+            type="checkbox"
+            [checked]="enabledLines().has(line.code)"
+            (change)="toggleLine(line.code)"
+          />
+          <span class="line-badge" [style.background-color]="line.color">{{ line.code }}</span>
+          <span class="line-name">{{ line.name }}</span>
+        </label>
+      </div>
     </div>
   </div>
 </div>

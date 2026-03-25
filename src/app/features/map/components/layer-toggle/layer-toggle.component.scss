@@ -5,20 +5,53 @@
   min-width: 200px;
   overflow: hidden;
 
-  h3 {
-    margin: 0;
-    font-size: 0.9rem;
-    font-weight: 600;
-    color: white;
+  .panel-header {
     background: #1e3a5f;
     padding: 0.75rem 1rem;
+
+    h3 {
+      margin: 0 0 0.5rem 0;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: white;
+    }
+  }
+
+  .view-toggle {
+    display: flex;
+    gap: 0.25rem;
+
+    .toggle-btn {
+      flex: 1;
+      padding: 0.375rem 0.5rem;
+      border: none;
+      background: rgba(255, 255, 255, 0.2);
+      color: rgba(255, 255, 255, 0.8);
+      font-size: 0.75rem;
+      font-weight: 500;
+      cursor: pointer;
+      border-radius: 4px;
+      transition: all 0.2s;
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.3);
+      }
+
+      &.active {
+        background: white;
+        color: #1e3a5f;
+      }
+    }
+  }
+
+  .panel-content {
+    padding: 1rem;
   }
 
   .layer-list {
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
-    padding: 1rem;
   }
 
   .layer-item {
@@ -42,6 +75,50 @@
 
       &:hover {
         .layer-name {
+          color: #333;
+        }
+      }
+    }
+  }
+
+  .line-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .line-item {
+    .line-label {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      cursor: pointer;
+      padding: 0.25rem 0;
+
+      input[type="checkbox"] {
+        width: 16px;
+        height: 16px;
+        cursor: pointer;
+      }
+
+      .line-badge {
+        font-size: 0.7rem;
+        padding: 0.125rem 0.375rem;
+        border-radius: 3px;
+        color: white;
+        font-weight: 600;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+        min-width: 1.5rem;
+        text-align: center;
+      }
+
+      .line-name {
+        font-size: 0.9rem;
+        color: #555;
+      }
+
+      &:hover {
+        .line-name {
           color: #333;
         }
       }

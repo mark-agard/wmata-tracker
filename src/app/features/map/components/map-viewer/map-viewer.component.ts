@@ -37,6 +37,10 @@ export class MapViewerComponent implements OnInit, AfterViewInit, OnDestroy {
       center: [-77.0365, 38.9072], // DC coordinates
       zoom: 12
     });
+
+    // Load static metro layers from GeoJSON
+    this.mapService.addMetroLinesLayer();
+    this.mapService.addMetroStationsLayer();
   }
 
   ngOnDestroy(): void {
