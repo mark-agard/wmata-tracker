@@ -6,6 +6,7 @@ import dotenv from 'dotenv';
 import path from 'path';
 import trainRoutes from './routes/trainRoutes';
 import alertRoutes from './routes/alertRoutes';
+import tripRoutes from './routes/tripRoutes';
 import { errorHandler } from './middleware/errorHandler';
 import { notFoundHandler } from './middleware/notFoundHandler';
 
@@ -32,6 +33,7 @@ app.get('/health', (req, res) => {
 
 app.use('/api/trains', trainRoutes);
 app.use('/api/alerts', alertRoutes);
+app.use('/api/trips', tripRoutes);
 
 
 if (isProduction) {

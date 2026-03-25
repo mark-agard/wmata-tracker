@@ -1,0 +1,31 @@
+<div class="station-arrivals-panel" *ngIf="isOpen()">
+  <div class="panel-header">
+    <h3>{{ stationName }}</h3>
+    <button class="close-btn" (click)="close()">×</button>
+  </div>
+
+  <div class="panel-content">
+    <div *ngIf="arrivals().length === 0" class="no-arrivals">
+      No upcoming arrivals
+    </div>
+
+    <div class="arrivals-list">
+      <div *ngFor="let arrival of arrivals()" class="arrival-item">
+        <span class="line-badge" [style.background-color]="getLineColor(arrival.routeId)">
+          {{ arrival.routeId }}
+        </span>
+        <div class="arrival-info">
+          <span class="arrival-time">{{ formatArrivalTime(arrival.arrivalTime) }}</span>
+          <span *ngIf="arrival.direction" class="arrival-direction">{{ arrival.direction }}</span>
+        </div>
+        <span *ngIf="arrival.arrivalDelay && arrival.arrivalDelay > 60" class="delay-warning">
+          +{{ arrival.arrivalDelay / 60 | number:'1.0-0' }} min
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel-footer">
+    <button class="refresh-btn" (click)="refreshArrivals()">Refresh</button>
+  </div>
+</div>

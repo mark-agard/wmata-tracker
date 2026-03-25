@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ElementRef, ViewChild, AfterViewInit } from '@angular/core';
+import { Component, OnInit, OnDestroy, ElementRef, ViewChild, AfterViewInit, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MapService } from '@core/services/map.service';
 import { HttpClient } from '@angular/common/http';
@@ -13,6 +13,7 @@ import { Subject } from 'rxjs';
 })
 export class MapViewerComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('mapContainer', { static: true }) mapContainer!: ElementRef;
+  @Output() stationClick = new EventEmitter<{stationId: string, stationName: string}>();
   private destroy$ = new Subject<void>();
 
   constructor(
@@ -41,6 +42,13 @@ export class MapViewerComponent implements OnInit, AfterViewInit, OnDestroy {
     // Load static metro layers from GeoJSON
     this.mapService.addMetroLinesLayer();
     this.mapService.addMetroStationsLayer();
+
+    // Set up station hover and click interactions
+    setTimeout(() => {
+      this.mapService.setupStationInteractions((stationId, stationName) => {
+        this.stationClick.emit({ stationId, stationName });
+      });
+    }, 500);
   }
 
   ngOnDestroy(): void {

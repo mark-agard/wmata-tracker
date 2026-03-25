@@ -1,9 +1,12 @@
 <div class="map-feature-container">
-  <div class="sidebar-section">
+  <div class="sidebar-left">
     <app-layer-toggle></app-layer-toggle>
     <app-alert-feed></app-alert-feed>
   </div>
+  <div class="sidebar-right">
+    <app-station-arrivals></app-station-arrivals>
+  </div>
   <div class="map-viewer-section">
-    <app-map-viewer></app-map-viewer>
+    <app-map-viewer (stationClick)="onStationClick($event.stationId, $event.stationName)"></app-map-viewer>
   </div>
 </div>

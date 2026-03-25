@@ -28,6 +28,9 @@ export class MapService {
   private enabledLines = signal<Set<string>>(new Set(['RL', 'OR', 'BL', 'SV', 'YL', 'GR']));
   private popupOverlay: Overlay | null = null;
   private popupElement: HTMLElement | null = null;
+  private stationTooltipElement: HTMLElement | null = null;
+  private stationTooltipOverlay: Overlay | null = null;
+  private onStationClickCallback: ((stationId: string, stationName: string) => void) | null = null;
 
   initializeMap(target: string, config?: MapConfig): Map {
     const defaultConfig: MapConfig = {
@@ -382,12 +385,93 @@ export class MapService {
     }
   }
 
+  setupStationInteractions(onStationClick: (stationId: string, stationName: string) => void): void {
+    this.onStationClickCallback = onStationClick;
+
+    if (!this.map || !this.metroStationsLayer) return;
+
+    // Create station tooltip element
+    this.stationTooltipElement = document.createElement('div');
+    this.stationTooltipElement.className = 'station-tooltip';
+    this.stationTooltipElement.style.cssText = `
+      background: white;
+      padding: 8px 12px;
+      border-radius: 4px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      font-size: 12px;
+      pointer-events: none;
+      display: none;
+      z-index: 1000;
+    `;
+    document.body.appendChild(this.stationTooltipElement);
+
+    this.stationTooltipOverlay = new Overlay({
+      element: this.stationTooltipElement,
+      positioning: 'bottom-center',
+      offset: [0, -10]
+    });
+    this.map.addOverlay(this.stationTooltipOverlay);
+
+    // Pointer move for hover
+    this.map.on('pointermove', (e) => {
+      const pixel = this.map!.getEventPixel(e.originalEvent);
+      const feature = this.map!.forEachFeatureAtPixel(pixel, (f) => f, {
+        layerFilter: (layer) => layer === this.metroStationsLayer
+      });
+
+      if (feature) {
+        const stationId = feature.get('GIS_ID') as string;
+        const stationName = feature.get('NAME') as string;
+        const lines = feature.get('LINE') as string;
+        
+        if (this.stationTooltipElement && this.stationTooltipOverlay) {
+          this.stationTooltipElement.innerHTML = `
+            <strong>${stationName}</strong><br>
+            <span style="color: #666;">${lines}</span>
+          `;
+          this.stationTooltipElement.style.display = 'block';
+          this.stationTooltipOverlay.setPosition(e.coordinate);
+        }
+        this.map!.getTargetElement().style.cursor = 'pointer';
+      } else {
+        if (this.stationTooltipElement) {
+          this.stationTooltipElement.style.display = 'none';
+        }
+        this.map!.getTargetElement().style.cursor = '';
+      }
+    });
+
+    // Click handler
+    this.map.on('click', (e) => {
+      const pixel = this.map!.getEventPixel(e.originalEvent);
+      const feature = this.map!.forEachFeatureAtPixel(pixel, (f) => f, {
+        layerFilter: (layer) => layer === this.metroStationsLayer
+      });
+
+      if (feature && this.onStationClickCallback) {
+        const trainInfoUrl = feature.get('TRAININFO_URL') as string;
+        const stationName = feature.get('NAME') as string;
+        
+        // Extract station code from TRAININFO_URL (e.g., "...#E03|Georgia Ave-Petworth" -> "E03")
+        const stationCode = trainInfoUrl?.split('#')[1]?.split('|')[0] || '';
+        
+        this.onStationClickCallback(stationCode, stationName);
+      }
+    });
+  }
+
   destroy(): void {
     if (this.popupElement && this.popupElement.parentNode) {
       this.popupElement.parentNode.removeChild(this.popupElement);
     }
     this.popupElement = null;
     this.popupOverlay = null;
+
+    if (this.stationTooltipElement && this.stationTooltipElement.parentNode) {
+      this.stationTooltipElement.parentNode.removeChild(this.stationTooltipElement);
+    }
+    this.stationTooltipElement = null;
+    this.stationTooltipOverlay = null;
 
     if (this.map) {
       if (this.metroLinesLayer) {

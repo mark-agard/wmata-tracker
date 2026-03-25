@@ -22,8 +22,6 @@ class TrainService {
 
   async fetchTrainPositions(): Promise<TrainPosition[]> {
     try {
-      console.log('Fetching train positions from WMATA API...');
-      
       const response = await fetch('https://api.wmata.com/gtfs/rail-gtfsrt-vehiclepositions.pb', {
         headers: {
           'api_key': process.env.WMATA_API_KEY || '',
@@ -31,18 +29,14 @@ class TrainService {
         }
       });
 
-      console.log('WMATA API response status:', response.status);
-
       if (!response.ok) {
         throw new Error(`WMATA API error: ${response.status}`);
       }
 
       const buffer = await response.arrayBuffer();
-      console.log('Received buffer size:', buffer.byteLength, 'bytes');
       
       // Decode protobuf data
       const feedMessage = FeedMessage.fromBinary(new Uint8Array(buffer));
-      console.log('Decoded feed message entities:', feedMessage.entity.length);
       
       // Transform GTFS RT data to our TrainPosition format
       this.trainPositions = feedMessage.entity
@@ -67,11 +61,9 @@ class TrainService {
             occupancyStatus: vehicle.occupancyStatus?.toString(),
             occupancyPercentage: vehicle.occupancyPercentage
           };
-          console.log('Processed train:', train);
           return train;
         });
 
-      console.log('Final train positions:', this.trainPositions.length);
       this.lastUpdate = new Date();
       return this.trainPositions;
     } catch (error) {
